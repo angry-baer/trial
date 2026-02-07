@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>For You</title>
+<style>
+  body {
+    background: #0e0e11;
+    color: #f5f5f5;
+    font-family: system-ui, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    text-align: center;
+  }
+  .box {
+    max-width: 420px;
+    padding: 32px;
+    border-radius: 14px;
+    background: rgba(255,255,255,0.06);
+  }
+  audio {
+    width: 100%;
+    margin-top: 20px;
+  }
+</style>
+</head>
+<body>
+
+<div class="box" id="app"></div>
+
+<script>
+  const today = new Date().toISOString().slice(0,10);
+
+  const days = {
+    "2026-02-07": { title: "Rose Day 🌹", file: "songs/rose.mp3" },
+    "2026-02-08": { title: "Propose Day 💍", file: "songs/propose.mp3" },
+    "2026-02-09": { title: "Chocolate Day 🍫", file: "songs/chocolate.mp3" },
+    "2026-02-10": { title: "Teddy Day 🧸", file: "songs/teddy.mp3" },
+    "2026-02-11": { title: "Promise Day 🤝", file: "songs/promise.mp3" },
+    "2026-02-12": { title: "Kiss Day 💋", file: "songs/kiss.mp3" },
+    "2026-02-13": { title: "Hug Day 🤍", file: "songs/hug.mp3" },
+    "2026-02-14": { title: "Valentine’s Day ❤️", file: "songs/valentine.mp3" }
+  };
+
+  const app = document.getElementById("app");
+
+  if (days[today]) {
+    app.innerHTML = `
+      <h2>${days[today].title}</h2>
+      <audio controls autoplay>
+        <source src="${days[today].file}">
+      </audio>
+    `;
+  } else {
+    app.innerHTML = `
+      <h2>Not today</h2>
+      <p>Come back on the right day 💌</p>
+    `;
+  }
+</script>
+
+</body>
+</html>
