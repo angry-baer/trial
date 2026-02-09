@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Something for Chinuu</title>
+    <style>
+        :root {
+            --bg: #0d0208;
+            --card-bg: #1a0a13;
+            --accent: #ff4d6d;
+            --glow: rgba(255, 77, 109, 0.4);
+            --text: #fff0f3;
+            --secondary: #a44a5f;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Heart Container */
+        .heart-container {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .floating-heart {
+            position: absolute;
+            fill: var(--accent);
+            opacity: 0.15; /* Increased visibility */
+            filter: blur(2px); /* Slightly less smudge for better definition */
+        }
+
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            10% { transform: scale(1.15); }
+            20% { transform: scale(1); }
+            30% { transform: scale(1.2); }
+            50% { transform: scale(1); }
+            100% { transform: scale(1); }
+        }
+
+        .beating-heart {
+            display: inline-block;
+            color: var(--accent);
+            animation: heartbeat 1.5s ease-in-out infinite;
+            margin-left: 12px;
+            font-size: 1.4rem;
+            vertical-align: middle;
+        }
+
+        #home-view {
+            position: relative;
+            z-index: 10;
+            padding: 20px;
+            max-width: 450px;
+            width: 100%;
+            transition: opacity 0.5s ease;
+        }
+
+        h1 { 
+            text-align: center; 
+            font-weight: 200; 
+            letter-spacing: 3px; 
+            text-transform: uppercase;
+            font-size: 1.2rem;
+            margin-bottom: 40px;
+            text-shadow: 0 0 10px var(--glow);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 35px 15px;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            border: 1px solid rgba(255, 77, 109, 0.1);
+        }
+
+        .card:hover:not(.locked) { 
+            border-color: var(--accent);
+            box-shadow: 0 0 20px var(--glow);
+            transform: translateY(-2px);
+        }
+
+        .card.locked { opacity: 0.3; cursor: not-allowed; }
+
+        #detail-view {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, #1a0a13 0%, #0d0208 100%);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .content-box { position: relative; z-index: 10; text-align: center; width: 85%; max-width: 350px; }
+
+        .back-btn {
+            position: absolute;
+            top: 40px; left: 30px;
+            background: none; border: 1px solid var(--secondary);
+            color: var(--secondary);
+            padding: 5px 15px;
+            border-radius: 20px;
+            cursor: pointer; z-index: 110;
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+        }
+
+        .countdown { font-size: 3rem; color: var(--accent); margin-top: 25px; font-weight: 100; }
+        
+        audio { margin-top: 40px; width: 100%; height: 40px; filter: hue-rotate(310deg) brightness(1.1); }
+
+        .date-label { font-size: 0.65rem; color: var(--secondary); margin-bottom: 8px; letter-spacing: 2px; text-transform: uppercase; }
+
+        .day-name { letter-spacing: 3px; font-size: 0.95rem; font-weight: 300; text-transform: uppercase; }
+    </style>
+</head>
+<body>
+
+    <div class="heart-container" id="main-hearts"></div>
+
+    <div id="home-view">
+        <h1>Something for Chinuu <span class="beating-heart">❤</span></h1>
+        <div class="grid" id="card-grid"></div>
+    </div>
+
+    <div id="detail-view">
+        <div class="heart-container" id="detail-hearts"></div>
+        <button class="back-btn" onclick="closePage()">GO BACK</button>
+        <div class="content-box" id="detail-content"></div>
+    </div>
+
+    <script>
+        const heartPath = "M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z";
+
+        function createHearts(containerId, count) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            for (let i = 0; i < count; i++) {
+                const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                
+                // Increased heart size (40px to 80px)
+                const size = Math.random() * 40 + 40;
+                
+                path.setAttribute("d", heartPath);
+                path.setAttribute("class", "floating-heart");
+                
+                svg.setAttribute("viewBox", "0 0 24 24");
+                svg.setAttribute("width", size);
+                svg.setAttribute("height", size);
+                svg.style.position = "absolute";
+                
+                // Spread across the viewport
+                svg.style.left = Math.random() * 85 + 5 + "%";
+                svg.style.top = Math.random() * 85 + 5 + "%";
+                svg.style.transform = `rotate(${Math.random() * 40 - 20}deg)`;
+                
+                svg.appendChild(path);
+                container.appendChild(svg);
+            }
+        }
+
+        // Home page gets exactly 6 hearts
+        createHearts('main-hearts', 6);
+
+        const days = [
+            { id: 1, date: 7, name: "Rose Day" },
+            { id: 2, date: 8, name: "Propose Day" },
+            { id: 3, date: 9, name: "Chocolate Day" },
+            { id: 4, date: 10, name: "Teddy Day" },
+            { id: 5, date: 11, name: "Promise Day" },
+            { id: 6, date: 12, name: "Hug Day" },
+            { id: 7, date: 13, name: "Kiss Day" },
+            { id: 8, date: 14, name: "Valentine's Day" }
+        ];
+
+        function isUnlocked(dayDate) {
+            const now = new Date();
+            const target = new Date(2026, 1, dayDate); 
+            return now >= target;
+        }
+
+        function openPage(index) {
+            const day = days[index];
+            document.getElementById('home-view').style.opacity = '0';
+            
+            // Generate hearts equal to the day's date
+            createHearts('detail-hearts', day.date);
+
+            setTimeout(() => {
+                document.getElementById('detail-view').style.display = 'flex';
+                const content = document.getElementById('detail-content');
+                if (isUnlocked(day.date)) {
+                    content.innerHTML = `
+                        <div class="date-label">FEBRUARY ${day.date}</div>
+                        <h2 class="day-name">${day.name}</h2>
+                        <audio controls autoplay><source src="${day.id}.mp3" type="audio/mpeg"></audio>
+                    `;
+                } else {
+                    content.innerHTML = `
+                        <div class="date-label">FEBRUARY ${day.date}</div>
+                        <h2 class="day-name" style="color:var(--secondary)">${day.name}</h2>
+                        <div class="countdown" id="timer"></div>
+                    `;
+                    startCountdown(day.date);
+                }
+            }, 300);
+        }
+
+        function closePage() {
+            document.getElementById('detail-view').style.display = 'none';
+            document.getElementById('home-view').style.opacity = '1';
+        }
+
+        function startCountdown(dayDate) {
+            const target = new Date(2026, 1, dayDate).getTime();
+            const x = setInterval(() => {
+                const now = new Date().getTime();
+                const diff = target - now;
+                if (diff < 0) { clearInterval(x); location.reload(); return; }
+                const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const s = Math.floor((diff % (1000 * 60)) / 1000);
+                const el = document.getElementById('timer');
+                if(el) el.innerHTML = `${h}:${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
+            }, 1000);
+        }
+
+        days.forEach((day, i) => {
+            const div = document.createElement('div');
+            const unlocked = isUnlocked(day.date);
+            div.className = `card ${unlocked ? '' : 'locked'}`;
+            div.innerHTML = `<div class="date-label">Feb ${day.date}</div><div class="day-name">${day.name}</div>`;
+            div.onclick = () => openPage(i);
+            document.getElementById('card-grid').appendChild(div);
+        });
+    </script>
+</body>
+</html>
